@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My visits</title>
+    <link href="/css/style.css" rel="stylesheet" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Nunito+Sans&display=swap"
+      rel="stylesheet"
+    />
+    <script src="/scripts/myvisit.js" defer></script>
+  </head>
+  <body>
+    <div class="parent-h">
+      <div class="topnav">
+        <a href="#home" th:href="@{/customer/register}">Home</a>
+        <a href="#" th:href="@{/dashboard/det(cid=${customer.id},s=${mysession})}">Visists</a>
+        <a class="active" href="#"  th:href="@{/customer/myvisits/det(cid=${customer.id},s=${mysession})}">My visits</a>
+        <a href="#"  th:href="@{/customer/book/det(cid=${customer.id},s=${mysession})}">Book visit</a>
+        <a class="ml-auto" href="#" th:href="@{/}">Logaut</a>
+      </div>
+      <div class="my-card"> 
+        <div class="card-head my-cell" 
+        th:text="'Welcome: ' + |${customer.firstName}| + ' ' + |${customer.lastName}|">
+      My specialist appointments
+      </div>
+      <div class="card-vi">
+        <strong class="my-cell">Specialist name</strong>
+        <strong class="my-cell">Appointment time</strong>
+        <strong class="my-cell">Time left</strong>
+        <div class=""></div>
+        <div class=""></div>
+      </div>
+        <ul>
+          <li id="" th:id="list + |${visit.visitId}|" class="card-vi" th:each="visit : ${visits}">
+            <strong class="my-cell" th:text="${visit.specFullName}">Specialist</strong>
+            <strong class="my-cell" th:text="${visit.visitTime}">Visit time</strong>
+            <strong class="my-cell" th:text="${visit.timeLeft}">Time left</strong>
+            <div class=""></div>
+            <a
+              class="my-button"
+              data-visit=""
+              th:attr="data-visit=${visit.visitId}"
+              onclick=""
+              th:onclick="'cancelEvent(' + |${visit.visitId}| + ')'"
+              >Cancel</a
+            >
+          </li>
+        </ul>
+      </div>
+    </div>
+  </body>
+</html>

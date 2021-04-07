@@ -7,7 +7,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Table;
 
 import javax.persistence.*;
-import java.sql.Timestamp;
+import java.util.Map;
 
 @Data
 @NoArgsConstructor
@@ -20,4 +20,15 @@ public class Visit {
     private long specialistId;
     private long customerId;
     private long visitTime;
+    private int visitDuration;
+    private String serial;
+
+    public Visit(long specialistId, long customerId, long visitTime, int visiDuration, String serial) {
+        this.specialistId = specialistId;
+        this.customerId = customerId;
+        this.visitTime = visitTime;
+        this.visitDuration = visiDuration;
+        this.serial = serial;
+    }
+
 }

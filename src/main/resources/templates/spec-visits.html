@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My visits</title>
+    <link href="/css/style.css" rel="stylesheet" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Nunito+Sans&display=swap"
+      rel="stylesheet"
+    />
+    <script src="/scripts/spec-visit.js" defer></script>
+  </head>
+  <body>
+    <div class="parent-h">
+      <div class="nav-cont">
+        <div class="topnav">
+          <a href="#home" th:href="@{/specialist/login}">Home</a>
+          <a href="#" th:href="@{/dashboard/spec/det(sid=${specialist.id},s=${mysession})}">Visists</a>
+          <a class="active" href="#"  th:href="@{/specialist/myvisits/det(sid=${specialist.id},s=${mysession})}">My visits</a>
+          <div class=""></div>
+          <a class="ml-auto" href="#" th:href="@{/}">Logaut</a>
+        </div>
+      </div>
+      <div class="my-card">
+        <div
+          class="card-head"
+          th:text="'Welcome: ' + |${specialist.firstName}| + ' ' + |${specialist.lastName}|"
+        >Welcome specialist</div>
+        <div class="card-vi">
+          <strong class="my-cell">Waiting customer</strong>
+          <strong class="my-cell">Appointment time</strong>
+          <div class=""></div>
+          <div class=""></div>
+          <div class=""></div>
+        </div>
+        <ul id="ulist" th:attr="data-spec=${specialist.id}">
+          <li
+            id=""
+            th:id="list + |${visit.visitId}|"
+            class="card-vi"
+            th:each="visit : ${visits}"
+          >
+            <strong class="my-cell" th:text="${visit.custFullName}"
+              >Primary</strong
+            >
+            <strong class="my-cell" th:text="${visit.visitTime}"
+              >Primary</strong
+            >
+            <a
+              class="my-button"
+              data-visit=""
+              th:attr="data-visit=${visit.visitId}"
+              onclick=""
+              th:onclick="'cancelEvent(' + |${visit.visitId}| + ', this)'"
+              >Cancel</a
+            >
+            <a
+              class="my-button btn-ac"
+              data-visit=""
+              th:attr="data-visit=${visit.visitId}"
+              onclick=""
+              th:onclick="'cancelEvent(' + |${visit.visitId}| + ', this)'"
+              >Started</a
+            >
+            <a
+              class="my-button btn-ac"
+              data-visit=""
+              th:attr="data-visit=${visit.visitId}"
+              onclick=""
+              th:onclick="'cancelEvent(' + |${visit.visitId}| + ', this)'"
+              >Finished</a
+            >
+          </li>
+        </ul>
+      </div>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Customer enter</title>
+    <link href="/css/style.css" rel="stylesheet" />
+    <script src="/scripts/app.js" defer></script>
+  </head>
+  <body class="parent">
+    <div class="card" style="background: rgb(210, 212, 212);">
+      <div class="card-head text-center" style="color: rgb(100, 120, 120);"> Please enter your credentials</div>
+      <form
+        action="#"
+        method="POST"
+        th:acttion="@{/customer/register}"
+        th:object="${customer}"
+      >
+        <div class="card-in">
+          <div class="my-cell">
+            <span class="my-cell">Your email</span>
+          </div>
+          <input
+            class="my-input"
+            id="email"
+            type="text"
+            th:field="*{email}"
+          />
+        </div>
+        <div class="card-in">
+          <div class="my-cell">
+            <span class="my-cell">Your first name</span>
+          </div>
+          <input
+            class="my-input"
+            id="fname"
+            type="text"
+            th:field="*{firstName}"
+          />
+        </div>
+        <div class="card-in">
+          <div class="my-cell">
+            <span class="my-cell">Your last name</span>
+          </div>
+          <input
+            class="my-input"
+            id="lname"
+            type="text"
+            th:field="*{lastName}"
+          />
+        </div>
+        <div class="card-foot">
+          <div class=""></div>
+          <div class=""></div>
+            <input
+              class="my-button"
+              type="submit"
+              value="Enter!"
+            />
+        </div>
+      </form>
+    </div>
+  </body>
+</html>

@@ -7,24 +7,22 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Table;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(value = "specialists")
-public class Specialist {
+public class Specialist extends User {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
-    private String firstName;
-    private String lastName;
 
-    public Specialist(String first_name, String last_name) {
-        this.firstName = first_name;
-        this.lastName = last_name;
+
+    public Specialist(String email, String first_name, String last_name, String password) {
+        super(email,first_name, last_name, password);
+    }
+
+    public Specialist(String email, String password) {
+        super(email, password);
     }
 }

@@ -6,6 +6,6 @@ import org.springframework.data.repository.reactive.ReactiveCrudRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface VisistsRepo extends ReactiveCrudRepository<Visit, Long> {
+public interface VisitsRepo extends ReactiveCrudRepository<Visit, Long> {
 
 }

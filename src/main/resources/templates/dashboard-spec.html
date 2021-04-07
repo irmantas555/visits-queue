@@ -18,10 +18,10 @@
     <div class="parent-h">
       <div class="nav-cont">
         <div class="topnav">
-          <a href="#home" th:href="@{/customer/register}">Home</a>
-          <a class="active" href="#" th:href="@{/dashboard/det(cid=${customer.id},s=${mysession})}">Visists</a>
-          <a  href="#"  th:href="@{/customer/myvisits/det(cid=${customer.id},s=${mysession})}">My visits</a>
-          <a href="#"  th:href="@{/customer/book/det(cid=${customer.id},s=${mysession})}">Book visit</a>
+          <a href="#home" th:href="@{/specialist/login}">Home</a>
+          <a class="active" href="#" th:href="@{/dashboard/spec/det(sid=${specialist.id},s=${mysession})}">Visists</a>
+          <a href="#"  th:href="@{/specialist/myvisits/det(sid=${specialist.id},s=${mysession})}">My visits</a>
+          <div class=""></div>
           <a class="ml-auto" href="#" th:href="@{/}">Logaut</a>
         </div>
       </div>
@@ -35,6 +35,7 @@
         <strong class="my-cell gr">Upcoming serial</strong>
         <strong class="my-cell gr">Specialist name</strong>
       </div>
+
       <div id="split-list" class="split-screen">
         <ul class="left">
           <li class="card-li">

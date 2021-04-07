@@ -8,26 +8,20 @@ import org.springframework.data.relational.core.mapping.Table;
 
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(value = "customers")
-public class Customer {
+public class Customer extends User {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
-    private String email;
-    private String firstName;
-    private String lastName;
 
-    public Customer(String email, String first_name, String last_name) {
-        this.email = email;
-        this.firstName = first_name;
-        this.lastName = last_name;
+
+    public Customer(String email, String first_name, String last_name, String password) {
+       super(email,first_name, last_name, password);
     }
+
+
 }

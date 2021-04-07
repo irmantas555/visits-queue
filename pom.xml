@@ -10,11 +10,11 @@
 	</parent>
 	<groupId>lt.irmantasm</groupId>
 	<artifactId>nfq-task</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.0.1</version>
 	<name>nfq-task</name>
 	<description>Task project for NFQ internship</description>
 	<properties>
-		<java.version>11</java.version>
+		<java.version>8</java.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -41,15 +41,6 @@
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.mariadb</groupId>
-			<artifactId>r2dbc-mariadb</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.mariadb.jdbc</groupId>
-			<artifactId>mariadb-java-client</artifactId>
-			<scope>runtime</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
