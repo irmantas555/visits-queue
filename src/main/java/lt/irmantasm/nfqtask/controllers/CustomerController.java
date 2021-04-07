@@ -51,7 +51,7 @@ public class CustomerController {
                     MySession.addCustomer(customer1);
                     return customer1;
                 })
-                .map(customer1 -> "redirect:/customer/myvisits/" + MySession.getSession() + "/customer/" + customer1.getId());
+                .map(customer1 -> "redirect:/customer/myvisits/det?cid=" + customer1.getId() + "&s=" + MySession.getSession());
     }
 
     @GetMapping(value = "/book/det")
@@ -81,18 +81,4 @@ public class CustomerController {
         }
     }
 
-    @GetMapping(value = "/myvisits/{session}/customer/{id}")
-    public Mono<String> getCustomerBookedV(final Model model,@PathVariable String session,@PathVariable Long id) {
-        if (session.equals(MySession.getSession())) {
-            Flux<MyVisit> myvisits = customerService.getMyVisits(id);
-            Customer customer = MySession.getCustomerById(id);
-            System.out.println(customer);
-            model.addAttribute("customer", customer);
-            model.addAttribute("mysession", MySession.getSession());
-            model.addAttribute("visits", new ReactiveDataDriverContextVariable(myvisits, 50));
-            return Mono.just("my-visits");
-        } else {
-            return Mono.just("redirect:/");
-        }
-    }
 }

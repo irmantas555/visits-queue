@@ -16,13 +16,7 @@ CREATE TABLE visits (id bigint(20) NOT NULL AUTO_INCREMENT PRIMARY KEY,
                         customer_id bigint(20) NOT NULL,
                         visit_time bigint(13) NOT NULL,
                         visit_duration int NOT NULL,
-                        serial varchar(6) NOT NULL,
-                        FOREIGN KEY(specialist_id) REFERENCES specialists(id),
-                        FOREIGN KEY(customer_id) REFERENCES customers(id));
-CREATE TABLE auth_group (
-                      group_id int(11) AUTO_INCREMENT PRIMARY KEY,
-                      email varchar(50) NOT NULL,
-                      auth_group varchar(25) NOT NULL);
+                        serial varchar(6) NOT NULL);
 CREATE INDEX email ON customers(email);
 CREATE INDEX visit_time ON visits(visit_time);
 

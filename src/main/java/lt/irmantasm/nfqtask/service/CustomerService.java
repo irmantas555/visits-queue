@@ -43,35 +43,31 @@ public class CustomerService {
 
     public Flux<MyVisit> getMyVisits(Long id) {
         return Flux.fromIterable(mySession.getVisitMap().entrySet())
-                .handle((visistsEntry, sink) -> {
-//                    System.out.println(visistsEntry);
-                    visistsEntry.getValue().entrySet().forEach(entry -> {
-//                                System.out.println(entry.getValue().getEmail() +  ": " + entry);
-                                if (entry.getValue().getSpecIdCustId().split("-")[1].equals(id.toString())) {
-                                    String visistTime = utilService.getVisitTime(entry.getKey());
-                                    String timeLeft = utilService.getTimeLeft(entry.getKey());
-                                    MyVisit myVisit = new MyVisit(
-                                            entry.getValue().getVisitId(),
-                                            entry.getKey(),
-                                            entry.getValue().getSerial(),
-                                            visistTime,
-                                            timeLeft,
-                                            entry.getValue().getSpecFirsLastName(),
-                                            entry.getValue().getFirstName() + " " + entry.getValue().getLastName(),
-                                            entry.getValue().getIntVisitSatus());
-//                                    System.out.println(myVisit);
-                                    sink.next(myVisit);
-                                }
-                            }
-                    );
+                .flatMap(visistsEntry -> {
+                   return Flux.fromIterable(visistsEntry.getValue().entrySet())
+                            .filter(entry -> entry.getValue().getSpecIdCustId().split("-")[1].equals(id.toString()))
+                            .map(entry -> {
+                                String visistTime = utilService.getVisitTime(entry.getKey());
+                                String timeLeft = utilService.getTimeLeft(entry.getKey());
+                                MyVisit myVisit = new MyVisit(
+                                        entry.getValue().getVisitId(),
+                                        entry.getKey(),
+                                        entry.getValue().getSerial(),
+                                        visistTime,
+                                        timeLeft,
+                                        entry.getValue().getSpecFirsLastName(),
+                                        entry.getValue().getFirstName() + " " + entry.getValue().getLastName(),
+                                        entry.getValue().getIntVisitSatus());
+                                return myVisit;
+                            });
                 });
     }
 
     public void assignNew(Long specId, Long customerId) {
 //        System.out.println("Spec: " + specId + "Customer: " + customerId);
         Long lastentry;
-        if (mySession.getVisitMap().containsKey(specId)) {
-            lastentry = mySession.getVisitMap().get(specId).lastEntry().getKey();
+        if (mySession.existSpecialistAndHisVisits(specId)) {
+            lastentry = mySession.getLAstTimeForSpecialist(specId);
         } else {
             lastentry = System.currentTimeMillis();
         }

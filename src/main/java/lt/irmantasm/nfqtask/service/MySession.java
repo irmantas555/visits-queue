@@ -7,10 +7,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuples;
 
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
 @Service
 public class MySession {
@@ -85,6 +82,14 @@ public class MySession {
         visitor.setIntVisitSatus(0);
         visitor.setSerial(visit.getSerial());
         return visitor;
+    }
+
+    public Long getLAstTimeForSpecialist(Long specId) {
+        return (visitsMap.get(specId).lastEntry().getKey());
+    }
+
+    public boolean existSpecialistAndHisVisits(Long specId){
+        return visitsMap.containsKey(specId) && visitsMap.get(specId).size() > 0;
     }
 
     public Flux<MyVisit> getMyVisitList() {
