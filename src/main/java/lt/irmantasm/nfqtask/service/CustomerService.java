@@ -30,16 +30,6 @@ public class CustomerService {
     @Autowired
     SpecialistsRepo specialistsRepo;
 
-    public Mono<Void> addCostomer(Customer customer) {
-        return customersRepo.findByEmail(customer.getEmail())
-                .switchIfEmpty(customersRepo.save(customer))
-                .map(customer1 -> {
-                    MySession.addCustomer(customer1);
-                    return customer1;
-                })
-                .then();
-    }
-
 
     public Flux<MyVisit> getMyVisits(Long id) {
         return Flux.fromIterable(mySession.getVisitMap().entrySet())

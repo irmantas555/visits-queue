@@ -3,11 +3,13 @@ package lt.irmantasm.nfqtask.model;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.stereotype.Component;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public abstract class User {
+@Component
+public class User {
     private String email;
     private String firstName;
     private String lastName;

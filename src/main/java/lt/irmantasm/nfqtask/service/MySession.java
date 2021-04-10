@@ -7,6 +7,8 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuples;
 
+import javax.annotation.PostConstruct;
+import java.time.Duration;
 import java.util.*;
 
 @Service
@@ -15,51 +17,18 @@ public class MySession {
     @Autowired
     UtilService utilService;
 
-
-    private static Map<Long, Specialist> specialistMap = new HashMap();
-
-    private static Map<Long, Customer> customerMap = new HashMap();
-
     private static String session;
 
-    private static Map<Long, TreeMap<Long, Visitor>> visitsMap = new HashMap<>();
+    Comparator<Visitor> iDComparator = Comparator.comparing(Visitor::getVisiteTime);
+//    SortedSet<Visitor> visitors = Collections.synchronizedSortedSet(new TreeSet<>(iDComparator));
+    private static Map<Long, TreeSet<Visitor>> visitsMap = new HashMap<>();
 
     public MySession() {
-    }
 
-    public static void addCustomer(Customer customer) {
-        customerMap.put(customer.getId(), customer);
-    }
-
-    public static Customer getCustomerById(Long id) {
-        return customerMap.get(id);
-    }
-    public static Specialist getSpecialsitById(Long id) {
-        return specialistMap.get(id);
-    }
-
-    public static void addSpecialist(Specialist specialist) {
-        specialistMap.put(specialist.getId(), specialist);
-    }
-
-    public static Map<Long, Specialist> getSpecialistMap() {
-        return specialistMap;
-    }
-
-    public static void setSpecialistMap(Map<Long, Specialist> specialistMap) {
-        MySession.specialistMap = specialistMap;
-    }
-
-    public static Map<Long, Customer> getCustomerMap() {
-        return customerMap;
-    }
-
-    public static void setCustomerMap(Map<Long, Customer> customerMap) {
-        MySession.customerMap = customerMap;
     }
 
 
-    public Map<Long, TreeMap<Long, Visitor>> getVisitMap() {
+    public Map<Long, TreeSet<Visitor>> getVisitMap() {
         return visitsMap;
     }
 
@@ -92,8 +61,10 @@ public class MySession {
         return visitsMap.containsKey(specId) && visitsMap.get(specId).size() > 0;
     }
 
+    @PostConstruct
     public Flux<MyVisit> getMyVisitList() {
-        return Flux.fromIterable(visitsMap.entrySet())
+        return  Flux.interval(Duration.ofSeconds(5))
+                .switchMap(aLong -> (Flux.fromIterable(visitsMap.entrySet()))
                 .flatMap(longTreeMapEntry -> {
                     return Flux.fromIterable(longTreeMapEntry.getValue().entrySet())
                             .map(longVisitorEntry ->
@@ -105,8 +76,10 @@ public class MySession {
                     return new MyVisit(tuple.getT3().getVisitId(), tuple.getT2(), tuple.getT3().getSerial(), visistTime, timeLeft,
                             tuple.getT3().getFirstName() + " " + tuple.getT3().getLastName(),
                             tuple.getT3().getSpecFirsLastName(), tuple.getT3().getIntVisitSatus());
-                });
+                }))
+                .sort()
     }
+
 
     public Flux<MyVisit> getMyVisitListStarted() {
        return getMyVisitList().filter(myVisit -> myVisit.getIntVisitStatus() > 0);

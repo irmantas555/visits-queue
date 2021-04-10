@@ -11,18 +11,23 @@
     />
     <script src="/scripts/dashboard.js" defer></script>
   </head>
-  <template>
-    <li></li>
-  </template>
   <body>
+  <form class="invissible"
+        th:action="@{/specialist/logout}"
+        id="logout-form"
+        method="post">
+    <input type="hidden"
+           th:name="${_csrf.parameterName}"
+           th:value="${_csrf.token}"/>
+  </form>
     <div class="parent-h">
       <div class="nav-cont">
         <div class="topnav">
-          <a href="#home" th:href="@{/specialist/login}">Home</a>
-          <a class="active" href="#" th:href="@{/dashboard/spec/det(sid=${specialist.id},s=${mysession})}">Visists</a>
-          <a href="#"  th:href="@{/specialist/myvisits/det(sid=${specialist.id},s=${mysession})}">My visits</a>
+          <a class="active" href="#" th:href="@{/dashboard/spec}">Visists</a>
+          <a href="#"  th:href="@{/specialist/myvisits}">My visits</a>
           <div class=""></div>
-          <a class="ml-auto" href="#" th:href="@{/}">Logaut</a>
+          <div class=""></div>
+          <button class="ml-auto" type="submit" form="logout-form">Logaut</button>
         </div>
       </div>
       <div class="grid-2">
@@ -35,7 +40,6 @@
         <strong class="my-cell gr">Upcoming serial</strong>
         <strong class="my-cell gr">Specialist name</strong>
       </div>
-
       <div id="split-list" class="split-screen">
         <ul class="left">
           <li class="card-li">

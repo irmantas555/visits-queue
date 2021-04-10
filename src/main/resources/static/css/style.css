@@ -13,6 +13,10 @@ body {
  font-size: larger;
 }
 
+.invisible{
+display: none;
+}
+
 
 .grid-1{
   display: grid;
@@ -290,7 +294,7 @@ input.my-button {
 }
 
 /* Style the links inside the navigation bar */
-.topnav a {
+.topnav a,.topnav button{
   color: #f2f2f2;
   text-align: center;
   background-color: rgb(106, 126, 136);
@@ -300,7 +304,7 @@ input.my-button {
 }
 
 /* Change the color of links on hover */
-.topnav a:hover {
+.topnav a:hover,.topnav button:hover{
   background-color: #ddd;
   color: black;
 }
@@ -310,7 +314,7 @@ input.my-button {
   background-color: #774caf;
   color: white;
 }
-.topnav a.ml-auto {
+.topnav a.ml-auto,.topnav b.ml-auto{
 margin-left: auto;
 }
 

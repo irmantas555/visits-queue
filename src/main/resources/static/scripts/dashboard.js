@@ -2,21 +2,6 @@ const onlist = document.getElementById('split-list');
 const es = new EventSource('http://localhost:8080/visits/sse');
 const template = document.getElementById('li-temp');
 
-
-// es.addEventListener('newlist', function(newlist){
-//     console.log(newlist);
-// })
-//const lii = template.querySelector('li');
-
-// private long visitId;
-// private long longTimestamp;
-// private String serial;
-// private String visitTime;
-// private String timeLeft;
-// private String specFullName;
-// private String custFullName;
-// private int intVisitStatus;
-
 es.onmessage = function(e){
     newpList = JSON.parse(e.data)
     console.log(newpList);
@@ -43,18 +28,10 @@ es.onmessage = function(e){
             newUlItemR.appendChild(newListItem);
         }
         while (onlist.firstChild) {
-            //The list is LIVE so it will re-index each call
             onlist.removeChild(onlist.firstChild);
         }
         onlist.appendChild(newUlItemL);
         onlist.appendChild(newUlItemR);
-
     });
 
-    // let htm = '';
-    // strList.forEach(function(element) {
-        // console.log(element)
-        // htm += "<li>" + element.firstName + "</li>";
-    // });
-    // list.innerHTML = htm;
 }

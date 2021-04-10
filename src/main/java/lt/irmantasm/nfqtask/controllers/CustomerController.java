@@ -1,5 +1,6 @@
 package lt.irmantasm.nfqtask.controllers;
 
+import javassist.tools.web.Webserver;
 import lt.irmantasm.nfqtask.model.Customer;
 import lt.irmantasm.nfqtask.model.MyVisit;
 import lt.irmantasm.nfqtask.model.Specialist;
@@ -12,6 +13,7 @@ import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.WebSession;
 import org.thymeleaf.spring5.context.webflux.ReactiveDataDriverContextVariable;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -40,7 +42,7 @@ public class CustomerController {
     @GetMapping(value = "/register")
     public String getRegissterForm(final Model model) {
         model.addAttribute(new Customer());
-        return "customer-register";
+        return "customer_register";
     }
 
     @PostMapping(value = "/register")
@@ -48,7 +50,6 @@ public class CustomerController {
         return customersRepo.findByEmail(customer.getEmail())
                 .switchIfEmpty(customersRepo.save(new Customer(customer.getEmail(), customer.getFirstName(), customer.getLastName(), "customer")))
                 .map(customer1 -> {
-                    MySession.addCustomer(customer1);
                     return customer1;
                 })
                 .map(customer1 -> "redirect:/customer/myvisits/det?cid=" + customer1.getId() + "&s=" + MySession.getSession());
@@ -59,26 +60,20 @@ public class CustomerController {
         if (s.equals(MySession.getSession())) {
             Flux<Specialist> specialists = specialistsRepo.findAll();
             model.addAttribute("mysession", mySessionUtils.getSession());
-            model.addAttribute("customer", MySession.getCustomerById(cid));
             model.addAttribute("specialists",new ReactiveDataDriverContextVariable(specialists, 50));
-            return Mono.just("vitsits-booking");
+            return Mono.just("vitsits_booking");
         } else {
             return Mono.just("redirect:/");
         }
     }
 
     @GetMapping(value = "/myvisits/det")
-    public Mono<String> getCustomerBookedVisits(@RequestParam Long cid, @RequestParam String s, final Model model) {
-        Customer customer = MySession.getCustomerById(cid);
-        if (s.equals(MySession.getSession())) {
+    public Mono<String> getCustomerBookedVisits(WebSession session, final Model model) {
+        Customer customer = session.getAttribute("customer");
             Flux<MyVisit> myvisits = customerService.getMyVisits(customer.getId());
-            model.addAttribute("mysession", s);
             model.addAttribute("customer", customer);
             model.addAttribute("visits", new ReactiveDataDriverContextVariable(myvisits, 50));
-            return Mono.just("my-visits");
-        } else {
-            return Mono.just("redirect:/");
-        }
+            return Mono.just("my_visits");
     }
 
 }

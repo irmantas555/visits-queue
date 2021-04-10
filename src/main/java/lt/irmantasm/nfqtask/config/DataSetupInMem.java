@@ -14,6 +14,7 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.r2dbc.connection.init.ConnectionFactoryInitializer;
 import org.springframework.r2dbc.connection.init.ResourceDatabasePopulator;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -22,10 +23,7 @@ import reactor.util.function.Tuples;
 
 import javax.annotation.PostConstruct;
 import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.Duration;
-import java.time.Instant;
 import java.util.*;
 
 @Log4j2
@@ -46,6 +44,8 @@ public class DataSetupInMem {
     @Autowired
     VisitsRepo visitsRepo;
 
+    @Autowired
+    AuthGroupRepo authGroupRepo;
 
     @Autowired
     UtilService utilService;
@@ -55,6 +55,7 @@ public class DataSetupInMem {
         long now = System.currentTimeMillis();
         Random random = new Random();
         //POPULATE CUSTOMERS AND SPECIALISTS
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(11);
         Mono.fromCallable(() -> Files.readAllLines(resfile.getFile().toPath()))
                 .delaySubscription(Duration.ofSeconds(2))
                 .flux()
@@ -63,19 +64,21 @@ public class DataSetupInMem {
                 .map(tuple -> {
                     String[] name = tuple.getT2().split(" ");
                     if (tuple.getT1() <= customerDbSize) {
-                        customersRepo.save(new Customer(name[2], name[0], name[1], "customer"))
+                        String pwd = encoder.encode("Cust" + 123);
+                        customersRepo.save(new Customer(name[2], name[0], name[1], pwd))
                                 .map(customer -> {
-                                    MySession.addCustomer(customer);
-                                    return "Ok";
+                                    return customer;
                                 })
+                                .flatMap(customer -> authGroupRepo.save(new AuthGroup(customer.getEmail(), "USER")))
                                 .subscribe();
                     } else {
-                        specialistsRepo.save(new Specialist(name[2], name[0], name[1], name[0] + "123"))
+                        String pwd = encoder.encode(name[0] + 123);
+                        specialistsRepo.save(new Specialist(name[2], name[0], name[1], pwd))
                                 .map(specialist -> {
-                                            MySession.addSpecialist(specialist);
-                                            return "Ok";
+                                            return specialist;
                                         }
                                 )
+                                .flatMap(specialist -> authGroupRepo.save(new AuthGroup(specialist.getEmail(), "USER")))
                                 .subscribe();
                     }
                     return tuple.getT1();

@@ -1,6 +1,5 @@
 package lt.irmantasm.nfqtask.config;
 
-import lt.irmantasm.nfqtask.model.Visit;
 import lt.irmantasm.nfqtask.model.Visitor;
 import lt.irmantasm.nfqtask.repositories.CustomRepository;
 import lt.irmantasm.nfqtask.repositories.VisitsRepo;
@@ -10,8 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.util.function.Tuple2;
-import reactor.util.function.Tuples;
 
 import javax.annotation.PostConstruct;
 import java.time.Duration;
@@ -33,21 +30,21 @@ public class DataSetup {
     @Autowired
     UtilService utilService;
 
-    @PostConstruct
-    private void setSession() {
-        UUID uuid = UUID.randomUUID();
-        long now = System.currentTimeMillis();
-        String partial = uuid.toString().split("-")[4];
-        mySession.setSession(partial);
-        final List<Visitor> mmap = new ArrayList<>();
-        Flux.interval(Duration.ofSeconds(60))
-                .map(v-> {
-                    UUID uuid1 = UUID.randomUUID();
-                    String partial1 = uuid1.toString().split("-")[4];
-                    mySession.setSession(partial1);
-                    return "Ok";
-                }).subscribe();
-    }
+//    @PostConstruct
+//    private void setSession() {
+//        UUID uuid = UUID.randomUUID();
+//        long now = System.currentTimeMillis();
+//        String partial = uuid.toString().split("-")[4];
+//        mySession.setSession(partial);
+//        final List<Visitor> mmap = new ArrayList<>();
+//        Flux.interval(Duration.ofSeconds(60))
+//                .map(v-> {
+//                    UUID uuid1 = UUID.randomUUID();
+//                    String partial1 = uuid1.toString().split("-")[4];
+//                    mySession.setSession(partial1);
+//                    return "Ok";
+//                }).subscribe();
+//    }
 
     @PostConstruct
     private void populateInMemoryVisitsMap() {

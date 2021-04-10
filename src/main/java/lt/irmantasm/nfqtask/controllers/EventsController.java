@@ -3,6 +3,8 @@ package lt.irmantasm.nfqtask.controllers;
 import lt.irmantasm.nfqtask.model.MyVisit;
 import lt.irmantasm.nfqtask.repositories.VisitsRepo;
 import lt.irmantasm.nfqtask.service.MySession;
+import lt.irmantasm.nfqtask.service.SinkService;
+import net.bytebuddy.build.Plugin;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
@@ -20,13 +22,12 @@ public class EventsController {
     @Autowired
     VisitsRepo visitsRepo;
 
+    @Autowired
+    SinkService service;
 
     @GetMapping(value = "/visits/sse")
-    public Flux<List<MyVisit>> visitsStream() {
-        return mySession.getMyVisitListStarted()
-                .mergeWith(mySession.getMyVisitListSorted())
-                .doOnNext(myVisit -> System.out.println(myVisit))
-                .buffer(Duration.ofSeconds(1));
+    public Flux<MyVisit> visitsStream() {
+        return service.replaySink.asFlux();
     }
 
     @GetMapping(value = "/visit/delete/{id}")

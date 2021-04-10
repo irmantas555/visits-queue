@@ -12,22 +12,25 @@
         Please enter your credentials
     </div>
     <form
-            action="#"
+            action="/specialist/login"
             method="POST"
-            th:acttion="@{/specregister}"
-            th:object="${specialist}"
     >
+        <div th:if="${failure}" class="error" >There was an error in input values</div>
+        <input
+                type="hidden"
+                th:name="${_csrf.parameterName}"
+                th:value="${_csrf.token}"/>
         <div class="card-in">
             <div class="my-cell">
                 <span class="my-cell">Your email</span>
             </div>
             <input
                     class="my-input"
-                    id="email"
+                    id="username"
+                    name="username"
                     type="text"
                     pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
                     aria-placeholder=" "
-                    th:field="*{email}"
             />
         </div>
         <div class="card-in">
@@ -38,19 +41,16 @@
             </div>
             <input
                     class="my-input"
-                    id="pwd"
+                    id="password"
+                    name="password"
                     pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,}"
                     aria-placeholder=" "
                     type="password"
-                    th:field="*{password}"
             />
         </div>
-        <div th:if="not ${logged}" class="error">
-            Given credentials is invalid
-        </div>
         <div class="card-foot">
-            <a class="my-button" href="#" th:href="@{/specialist/register}"
-            >Register</a
+            <button class="my-button" href="#" th:href="@{/specialist/register}"
+            >Register</button
             >
             <button class="my-button" type="submit">Enter</button>
         </div>
