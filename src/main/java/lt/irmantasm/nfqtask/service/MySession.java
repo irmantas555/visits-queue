@@ -1,15 +1,18 @@
 package lt.irmantasm.nfqtask.service;
 
 import lt.irmantasm.nfqtask.model.*;
+import lt.irmantasm.nfqtask.repositories.VisitsRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.util.function.Tuple2;
 import reactor.util.function.Tuples;
 
 import javax.annotation.PostConstruct;
 import java.time.Duration;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
 public class MySession {
@@ -17,15 +20,24 @@ public class MySession {
     @Autowired
     UtilService utilService;
 
+    @Autowired
+    VisitsRepo visitsRepo;
+
+    @Autowired
+    SinkService service;
+
     private static String session;
 
-    Comparator<Visitor> iDComparator = Comparator.comparing(Visitor::getVisiteTime);
-//    SortedSet<Visitor> visitors = Collections.synchronizedSortedSet(new TreeSet<>(iDComparator));
+    //    SortedSet<Visitor> visitors = Collections.synchronizedSortedSet(new TreeSet<>(iDComparator));
     private static Map<Long, TreeSet<Visitor>> visitsMap = new HashMap<>();
+    private static Map<Long, TreeSet<Visitor>> custVisitsMap = new HashMap<>();
+    private static NavigableSet<Visitor> lastSet = new TreeSet<>();
+
 
     public MySession() {
 
     }
+
 
 
     public Map<Long, TreeSet<Visitor>> getVisitMap() {
@@ -40,91 +52,116 @@ public class MySession {
         session = ses;
     }
 
-    public Visitor fromVisit(Visit visit, Specialist specialist, Customer customer) {
-        Visitor visitor = new Visitor();
-        visitor.setVisitId(visit.getId());
-        visitor.setSpecIdCustId(specialist.getId() + "-" + customer.getId());
-        visitor.setFirstName(customer.getFirstName());
-        visitor.setLastName(customer.getLastName());
-        visitor.setVisitDuration(15);
-        visitor.setSpecFirsLastName(specialist.getFirstName() + " " + specialist.getLastName());
-        visitor.setIntVisitSatus(0);
-        visitor.setSerial(visit.getSerial());
-        return visitor;
-    }
-
     public Long getLAstTimeForSpecialist(Long specId) {
-        return (visitsMap.get(specId).lastEntry().getKey());
+        return (visitsMap.get(specId).last().getVisitTime());
     }
 
-    public boolean existSpecialistAndHisVisits(Long specId){
+    public boolean existSpecialistAndHisVisits(Long specId) {
         return visitsMap.containsKey(specId) && visitsMap.get(specId).size() > 0;
     }
 
     @PostConstruct
-    public Flux<MyVisit> getMyVisitList() {
-        return  Flux.interval(Duration.ofSeconds(5))
-                .switchMap(aLong -> (Flux.fromIterable(visitsMap.entrySet()))
-                .flatMap(longTreeMapEntry -> {
-                    return Flux.fromIterable(longTreeMapEntry.getValue().entrySet())
-                            .map(longVisitorEntry ->
-                                    Tuples.of(longTreeMapEntry.getKey(), longVisitorEntry.getKey(), longVisitorEntry.getValue()));
+    public void getMyVisitList() {
+        AtomicInteger integer = new AtomicInteger();
+        Flux.interval(Duration.ofSeconds(5))
+                .switchMap(aLong -> (Flux.fromIterable(visitsMap.entrySet())))
+                .flatMap(longTreeSetEntry -> {
+                    return Flux.fromIterable(longTreeSetEntry.getValue())
+                            .map(visitor -> utilService.getVisitFromVisitor(visitor))
+                            .take(1);
                 })
-                .map(tuple -> {
-                    String visistTime = utilService.getVisitTime(tuple.getT2());
-                    String timeLeft = utilService.getTimeLeft(tuple.getT2());
-                    return new MyVisit(tuple.getT3().getVisitId(), tuple.getT2(), tuple.getT3().getSerial(), visistTime, timeLeft,
-                            tuple.getT3().getFirstName() + " " + tuple.getT3().getLastName(),
-                            tuple.getT3().getSpecFirsLastName(), tuple.getT3().getIntVisitSatus());
-                }))
-                .sort()
+//                .reduce(new TreeSet<Visitor>(), (set, visitor) -> {
+//                    int i = integer.incrementAndGet();
+//                    if (set.c)
+//                })
+                .doOnNext(myVisit -> System.out.println("sending visit with id: " + myVisit.getVisitId()))
+                .map(myVisit -> {
+                    service.emitMyNext(myVisit);
+                    return "Ok";
+                })
+                .subscribe();
+    }
+
+    public Mono<Void> addVisitorToCollections(Visitor visitor) {
+        Long specId = Long.getLong(visitor.getSpecIdCustId().split("-")[0]);
+        Long custId = Long.getLong(visitor.getSpecIdCustId().split("-")[1]);
+        return Flux.just(visitor)
+                .map(visitor1 -> {
+                    if (visitsMap.containsKey(specId)) {
+                        visitsMap.get(specId).add(visitor);
+                    } else {
+                        TreeSet<Visitor> set = new TreeSet<>();
+                        set.add(visitor);
+                        visitsMap.put(specId, set);
+                    }
+                    return visitor1;
+                })
+                .map(visitor1 -> {
+                    if (custVisitsMap.containsKey(custId)) {
+                        custVisitsMap.get(custId).add(visitor);
+                    } else {
+                        TreeSet<Visitor> set = new TreeSet<>();
+                        set.add(visitor);
+                        custVisitsMap.put(custId, set);
+                    }
+                    return visitor1;
+                })
+                .map(visitor1 -> lastSet.add(visitor))
+                .then();
     }
 
 
-    public Flux<MyVisit> getMyVisitListStarted() {
-       return getMyVisitList().filter(myVisit -> myVisit.getIntVisitStatus() > 0);
-    }
-
-    public Flux<MyVisit> getMyVisitListSorted() {
-        return getMyVisitList().filter(myVisit -> myVisit.getIntVisitStatus() == 0)
-                .sort(Comparator.comparing(MyVisit::getLongTimestamp))
-                .take(5);
-    }
 
     public Mono<Void> deleteVisitEntryById(Long id) {
-        return Flux.fromIterable(this.getVisitMap().entrySet())
-                .map(longTreeMapEntry -> {
-                    longTreeMapEntry.getValue().entrySet().removeIf(entry -> entry.getValue().getVisitId() == id);
-                    return "OK";
+        Visitor visitor = new Visitor(id);
+        return Flux.fromIterable(visitsMap.entrySet())
+                .handle((entry, sink) -> {
+                    if (entry.getValue().contains(visitor)) {
+                        entry.getValue().remove(visitor);
+                        sink.complete();
+                    }
                 })
-                .then();
+                .single()
+                .thenMany(Flux.fromIterable(custVisitsMap.entrySet()))
+                .handle((entry, sink) -> {
+                    if (entry.getValue().contains(visitor)) {
+                        entry.getValue().remove(visitor);
+                        sink.complete();
+                    }
+                })
+                .single()
+                .then(Mono.just(lastSet))
+                .map(set -> {
+                    if (set.contains(visitor)) {
+                        set.remove(visitor);
+                    }
+                    return "Ok";
+                })
+                .flatMap(s -> visitsRepo.deleteById(id));
     }
 
     public Mono<Void> setVisitStatus(Long id, int status) {
         return Flux.fromIterable(this.getVisitMap().entrySet())
-                .map(longTreeMapEntry -> {
-                    Flux.fromIterable(longTreeMapEntry.getValue().entrySet())
-                            .filter(longVisitorEntry -> longVisitorEntry.getValue().getVisitId() == id)
+                .handle((longTreeSetEntry, sink) -> {
+                    Flux.fromIterable(longTreeSetEntry.getValue())
+                            .filter(visitor -> visitor.getVisitId() == id)
                             .take(1)
-                            .map(entry -> {
-                                entry.getValue().setIntVisitSatus(status);
-                                return "Ok";
-                            }).subscribe();
-                    return "Ok";
+                            .subscribe(visitor -> {
+                                visitor.setIntVisitSatus(status);
+                                sink.complete();
+                            });
                 })
                 .then();
     }
 
+
     public Mono<Void> printVisitors() {
         return Flux.fromIterable(visitsMap.entrySet())
                 .map(ent -> {
-                    Flux.fromIterable(ent.getValue().entrySet())
-                            .doOnNext(longVisitorEntry -> System.out.println(longVisitorEntry.getValue())).subscribe();
+                    Flux.fromIterable(ent.getValue())
+                            .doOnNext(visitor -> System.out.println(visitor)).subscribe();
                     return "Ok";
                 })
                 .then();
     }
 }
-
-//    Iterator<Map.Entry<Long, TreeMap<Long, Visitor>>> iterator = visitsMap.entrySet().iterator();
-//    Map.Entry<Integer, String> entry;

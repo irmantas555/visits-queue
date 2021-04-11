@@ -11,6 +11,7 @@ import reactor.util.function.Tuples;
 import java.time.Duration;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 @Repository
 public class CustomRepository {
@@ -21,12 +22,6 @@ public class CustomRepository {
     @Autowired
     MySession mySession;
 
-//    String visitsMapSql = "SELECT c.id, (s.id  || '-' || c.id) as SpecIdCustId, c.first_name, c.last_name, s.id, " +
-//            "s.first_name || ' ' || s.last_name as specfl, v.id, v.visit_time, v.visit_duration, " +
-//            "v.serial " +
-//            "from visits v JOIN " +
-//            "customers c ON v.customer_id = c.id JOIN " +
-//            "specialists s ON v.specialist_id = s.id;";
 
     String visitsMapSql = "SELECT v.id, concat(s.id, '-' ,c.id) as SpecIdCustId, " +
             "c.first_name, c.last_name, " +
@@ -44,28 +39,28 @@ public class CustomRepository {
                     Visitor visitor =
                             new Visitor((row.get(0)), (row.get(1)), (row.get(2)), (row.get(3)),
                                     (row.get(4)), (row.get(5)), (row.get(6)), (row.get(7)));
-                    return Tuples.of(specId, visitTime, visitor);
+                    return Tuples.of(specId, visitor);
                 })
                 .all()
                 .delaySubscription(Duration.ofSeconds(5))
                 .map(tuple -> {
                     if (mySession.getVisitMap().containsKey(tuple.getT1())) {
-                        Map map = mySession.getVisitMap().get(tuple.getT1());
-                        if (null != map) {
-                            map.put(tuple.getT2(), tuple.getT3());
+                        TreeSet set = mySession.getVisitMap().get(tuple.getT1());
+                        if (null != set) {
+                            set.add(tuple.getT2());
                         } else {
-                            TreeMap<Long, Visitor> newMap = new TreeMap();
-                            newMap.put(tuple.getT2(), tuple.getT3());
-                            mySession.getVisitMap().put(tuple.getT1(), newMap);
+                            TreeSet<Visitor> newSet = new TreeSet<>();
+                            newSet.add(tuple.getT2());
+                            mySession.getVisitMap().put(tuple.getT1(), newSet);
                         }
                     } else {
-                        TreeMap<Long, Visitor> newMap = new TreeMap();
-                        newMap.put(tuple.getT2(), tuple.getT3());
-                        mySession.getVisitMap().put(tuple.getT1(), newMap);
+                            TreeSet<Visitor> newSet = new TreeSet<>();
+                        newSet.add(tuple.getT2());
+                        mySession.getVisitMap().put(tuple.getT1(), newSet);
                     }
                     return tuple;
                 })
-                .thenMany(Flux.fromIterable(mySession.getVisitMap().entrySet()))
+//                .thenMany(Flux.fromIterable(mySession.getVisitMap().entrySet()))
 //                .doOnNext(longMapEntry -> System.out.println(longMapEntry))
                 .subscribe();
     }

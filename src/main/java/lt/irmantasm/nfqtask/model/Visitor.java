@@ -4,16 +4,17 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Comparator;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Visitor {
+public class Visitor implements Comparator {
     private long visitId;
-    private long visiteTime;
+    private long visitTime;
     private String specIdCustId; //specialistId-customerId
-    private String firstName;
-    private String lastName;
-    private String specFirsLastName;
+    private String specFullName;
+    private String custFullName;
     private int visitDuration;
     private String serial;
     private int intVisitSatus;  //0 -not satrted, 1 - started, 2- finished
@@ -21,14 +22,22 @@ public class Visitor {
 
     public Visitor(Object o, Object o1, Object o2, Object o3, Object o4, Object o5, Object o6, Object o7) {
         this.visitId = (long) o;
-        this.visiteTime = (long) o7;
+        this.visitTime = (long) o7;
         this.specIdCustId = (String) o1;
-        this.firstName = (String) o2;
-        this.lastName = (String) o3;
-        this.specFirsLastName = (String) o4;
+        this.custFullName = (String) o2 + " " + (String) o2;
+        this.specFullName = (String) o4;
         this.visitDuration = (int) o5;
         this.serial = (String) o6;
         intVisitSatus = 0;
+    }
+
+    public Visitor(long visitId) {
+        this.visitId = visitId;
+    }
+
+    @Override
+    public int compare(Object o1, Object o2) {
+        return o1.hashCode() - o2.hashCode();
     }
 
     @Override
@@ -38,11 +47,7 @@ public class Visitor {
 
         Visitor visitor = (Visitor) o;
 
-        if (visitId != visitor.visitId) return false;
-        if (intVisitSatus != visitor.intVisitSatus) return false;
-        if (firstName != null ? !firstName.equals(visitor.firstName) : visitor.firstName != null) return false;
-        if (lastName != null ? !lastName.equals(visitor.lastName) : visitor.lastName != null) return false;
-        return specFirsLastName != null ? specFirsLastName.equals(visitor.specFirsLastName) : visitor.specFirsLastName == null;
+        return visitId == visitor.visitId;
     }
 
     @Override

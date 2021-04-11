@@ -56,6 +56,7 @@ public class DataSetupInMem {
         Random random = new Random();
         //POPULATE CUSTOMERS AND SPECIALISTS
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(11);
+        String customPwd = encoder.encode("Cust" + 123);
         Mono.fromCallable(() -> Files.readAllLines(resfile.getFile().toPath()))
                 .delaySubscription(Duration.ofSeconds(2))
                 .flux()
@@ -64,8 +65,7 @@ public class DataSetupInMem {
                 .map(tuple -> {
                     String[] name = tuple.getT2().split(" ");
                     if (tuple.getT1() <= customerDbSize) {
-                        String pwd = encoder.encode("Cust" + 123);
-                        customersRepo.save(new Customer(name[2], name[0], name[1], pwd))
+                        customersRepo.save(new Customer(name[2], name[0], name[1], customPwd))
                                 .map(customer -> {
                                     return customer;
                                 })

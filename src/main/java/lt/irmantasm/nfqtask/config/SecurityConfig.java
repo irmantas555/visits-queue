@@ -28,7 +28,6 @@ public class SecurityConfig {
     @Autowired
     ReactiveUserDetailsService userDetailsService;
 
-
     @Bean
     public ReactiveAuthenticationManager authenticationManager() {
         UserDetailsRepositoryReactiveAuthenticationManager manager =
@@ -36,7 +35,6 @@ public class SecurityConfig {
         manager.setPasswordEncoder(new BCryptPasswordEncoder(11));
         return manager;
     }
-
 
     @Bean
     public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
@@ -61,7 +59,6 @@ public class SecurityConfig {
                         .logout(logoutSpec -> logoutSpec
                                 .logoutUrl("/specialist/logout")
                                 .logoutSuccessHandler(logoutSuccessHandler()));
-
         return http.build();
     }
 

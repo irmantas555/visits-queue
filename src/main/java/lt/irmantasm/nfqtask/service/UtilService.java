@@ -1,14 +1,11 @@
 package lt.irmantasm.nfqtask.service;
 
+import lt.irmantasm.nfqtask.model.*;
 import org.springframework.stereotype.Service;
 
-import javax.swing.text.DateFormatter;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
 import java.util.Map;
-import java.util.TreeMap;
-import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Service
@@ -54,6 +51,24 @@ public class UtilService {
         }
         String serial = String.format("%04d", lastSerialForDay);
         return serial;
+    }
+
+    public MyVisit getVisitFromVisitor(Visitor visitor) {
+        return new MyVisit(visitor, getTimeLeft(visitor.getVisitTime()), getVisitTime(visitor.getVisitTime()));
+    }
+
+
+    public Visitor fromVisit(Visit visit, Specialist specialist, Customer customer) {
+        Visitor visitor = new Visitor();
+        visitor.setVisitId(visit.getId());
+        visitor.setVisitTime(visit.getVisitTime());
+        visitor.setSpecIdCustId(specialist.getId() + "-" + customer.getId());
+        visitor.setCustFullName(customer.getFirstName() + "" + customer.getLastName());
+        visitor.setSpecFullName(specialist.getFirstName() + " " + specialist.getLastName());
+        visitor.setVisitDuration(15);
+        visitor.setSerial(visit.getSerial());
+        visitor.setIntVisitSatus(0);
+        return visitor;
     }
 
 }

@@ -22,22 +22,8 @@ public class SpecialistService {
 
     public Flux<MyVisit> getMyVisits(Long id) {
         if (mySession.getVisitMap().containsKey(id)) {
-            return Flux.fromIterable(mySession.getVisitMap().get(id).entrySet())
-                    .map(entry -> {
-                        String visistTime = utilService.getVisitTime(entry.getKey());
-                        String timeLeft = utilService.getTimeLeft(entry.getKey());
-                        MyVisit myVisit = new MyVisit(
-                                entry.getValue().getVisitId(),
-                                entry.getKey(),
-                                entry.getValue().getSerial(),
-                                visistTime,
-                                timeLeft,
-                                entry.getValue().getSpecFirsLastName(),
-                                entry.getValue().getFirstName() + " " + entry.getValue().getLastName(),
-                                entry.getValue().getIntVisitSatus());
-//                        System.out.println(myVisit);
-                        return myVisit;
-                    });
+            return Flux.fromIterable(mySession.getVisitMap().get(id))
+                    .map(visitor -> utilService.getVisitFromVisitor(visitor));
         } else {
             return Flux.empty();
         }
@@ -47,4 +33,5 @@ public class SpecialistService {
         return specialistsRepo.findByEmail(email).cast(User.class)
                 .doOnNext(user -> System.out.println("Found such specialist" + user));
     };
+
 }

@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.util.function.Tuples;
 
 import javax.annotation.PostConstruct;
 import java.time.Duration;
@@ -30,26 +31,10 @@ public class DataSetup {
     @Autowired
     UtilService utilService;
 
-//    @PostConstruct
-//    private void setSession() {
-//        UUID uuid = UUID.randomUUID();
-//        long now = System.currentTimeMillis();
-//        String partial = uuid.toString().split("-")[4];
-//        mySession.setSession(partial);
-//        final List<Visitor> mmap = new ArrayList<>();
-//        Flux.interval(Duration.ofSeconds(60))
-//                .map(v-> {
-//                    UUID uuid1 = UUID.randomUUID();
-//                    String partial1 = uuid1.toString().split("-")[4];
-//                    mySession.setSession(partial1);
-//                    return "Ok";
-//                }).subscribe();
-//    }
-
     @PostConstruct
     private void populateInMemoryVisitsMap() {
         Mono.just("start")
-                .delaySubscription(Duration.ofSeconds(3))
+                .delaySubscription(Duration.ofSeconds(25))
                 .subscribe();
         customRepository.getVisitsValues();
     }
@@ -58,23 +43,23 @@ public class DataSetup {
     @PostConstruct
     private void visitsCleanupTwo() {
         final List<Visitor> mmap = new ArrayList<>();
-        Flux.interval(Duration.ofSeconds(60))
+        Flux.interval(Duration.ofSeconds(30))
                 .switchMap((aLong -> Flux.fromIterable(mySession.getVisitMap().entrySet())))
                 .map(entry -> {
-                    entry.getValue().entrySet().removeIf(visitorEntry -> Instant.ofEpochMilli(visitorEntry.getKey()).plusSeconds(Duration.ofMinutes(15).getSeconds()).toEpochMilli() < System.currentTimeMillis());
+                    Long nowPlus15Min = System.currentTimeMillis() + 15 * 60 * 1000; //current time + visit time(constant 15 min)
+                    TreeSet set = entry.getValue();
+                    Iterator iterator = set.iterator();
+
+                    while (iterator.hasNext()) {
+                        Visitor visitor = (Visitor) iterator.next();
+                        if (visitor.getVisitTime() < nowPlus15Min) {
+//                            System.out.println("Removing visistor with visit time: " + utilService.getVisitTime(visitor.getVisitTime()));
+                            visitsRepo.deleteById(visitor.getVisitId()).subscribe();
+                            iterator.remove();
+                        }
+                    }
                     return "Ok";
-                })
-                .subscribe();
-        Flux.interval(Duration.ofSeconds(60))
-                .switchMap((aLong -> Flux.fromIterable(mySession.getVisitMap().entrySet())))
-                .flatMap(entry -> Flux.fromIterable(entry.getValue().entrySet())
-                        .filter(lEntry -> {
-                            return Instant.ofEpochMilli(lEntry.getKey()).plusSeconds(Duration.ofMinutes(15).getSeconds()).toEpochMilli() < System.currentTimeMillis();
-                        })
-                        .map(lentry -> lentry.getValue().getVisitId())
-                )
-                .flatMap(id -> visitsRepo.deleteById(id))
-                .subscribe();
+                }).subscribe();
     }
 
 }
