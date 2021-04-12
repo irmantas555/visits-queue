@@ -5,13 +5,10 @@ import lt.irmantasm.nfqtask.model.User;
 import lt.irmantasm.nfqtask.repositories.AuthGroupRepo;
 import lt.irmantasm.nfqtask.repositories.CustomersRepo;
 import lt.irmantasm.nfqtask.repositories.SpecialistsRepo;
-import lt.irmantasm.nfqtask.service.MySession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
-
-import javax.annotation.PostConstruct;
 
 @Component
 @Profile("maria")

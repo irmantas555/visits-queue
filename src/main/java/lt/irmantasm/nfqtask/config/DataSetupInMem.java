@@ -5,7 +5,6 @@ import io.r2dbc.spi.ConnectionFactory;
 import lombok.extern.log4j.Log4j2;
 import lt.irmantasm.nfqtask.model.*;
 import lt.irmantasm.nfqtask.repositories.*;
-import lt.irmantasm.nfqtask.service.MySession;
 import lt.irmantasm.nfqtask.service.UtilService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -34,7 +33,6 @@ public class DataSetupInMem {
     int specialistDbSize = 19;
         Resource resfile = new ClassPathResource("fake-names.txt");
 
-
     @Autowired
     CustomersRepo customersRepo;
 
@@ -55,7 +53,7 @@ public class DataSetupInMem {
         long now = System.currentTimeMillis();
         Random random = new Random();
         //POPULATE CUSTOMERS AND SPECIALISTS
-        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(11);
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(5);
         String customPwd = encoder.encode("Cust" + 123);
         Mono.fromCallable(() -> Files.readAllLines(resfile.getFile().toPath()))
                 .delaySubscription(Duration.ofSeconds(2))
@@ -98,7 +96,7 @@ public class DataSetupInMem {
                 .reduce(new HashMap<Integer, TreeMap<Long, Integer>>(), (hashmap, tuple) -> {
                     if (null == hashmap || null == hashmap.get(tuple.getT2())) {
                         TreeMap specAppointmentsMap = new TreeMap();
-                        specAppointmentsMap.put(now, tuple.getT1());
+                        specAppointmentsMap.put((now + (random.nextInt(60) + 15) * 60 * 1000), tuple.getT1());
                         hashmap.put(tuple.getT2(), specAppointmentsMap);
                     } else {
                         TreeMap specAppointmentsMap = hashmap.get(tuple.getT2());

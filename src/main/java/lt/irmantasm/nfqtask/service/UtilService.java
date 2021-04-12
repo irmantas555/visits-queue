@@ -10,7 +10,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class UtilService {
-    private static Map<Integer, Integer> serialMap = new ConcurrentHashMap<>();
+    public static Map<Integer, Integer> serialMap = new ConcurrentHashMap<>();
 
     public String getVisitTime(Long tStamp) {
         DateTimeFormatter myFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
@@ -29,7 +29,8 @@ public class UtilService {
             lastTime = LocalDateTime.of(localDateTime.getYear(), localDateTime.getMonth(), localDateTime.getDayOfMonth() + 1, 8, 0, 0)
                     .atZone(ZoneId.systemDefault())
                     .toInstant().toEpochMilli();
-            return (Instant.ofEpochMilli(lastTime).plusSeconds(Duration.ofMinutes(15).getSeconds())).toEpochMilli();
+            Long next =  (Instant.ofEpochMilli(lastTime).plusSeconds(Duration.ofMinutes(15).getSeconds())).toEpochMilli();
+            return next;
         }
         return (Instant.ofEpochMilli(lastTime).plusSeconds(Duration.ofMinutes(15).getSeconds())).toEpochMilli();
     }
@@ -45,8 +46,7 @@ public class UtilService {
             lastSerialForDay = lastSerialForDay + 1;
             serialMap.put(nInt, lastSerialForDay);
         } else {
-            lastSerialForDay = 0;
-            lastSerialForDay = lastSerialForDay + 1;
+            lastSerialForDay =  1;
             serialMap.put(nInt, lastSerialForDay);
         }
         String serial = String.format("%04d", lastSerialForDay);
@@ -57,18 +57,22 @@ public class UtilService {
         return new MyVisit(visitor, getTimeLeft(visitor.getVisitTime()), getVisitTime(visitor.getVisitTime()));
     }
 
-
-    public Visitor fromVisit(Visit visit, Specialist specialist, Customer customer) {
+    public Visitor visitorFromVisit(Visit visit, Specialist specialist, Customer customer) {
         Visitor visitor = new Visitor();
         visitor.setVisitId(visit.getId());
         visitor.setVisitTime(visit.getVisitTime());
         visitor.setSpecIdCustId(specialist.getId() + "-" + customer.getId());
-        visitor.setCustFullName(customer.getFirstName() + "" + customer.getLastName());
+        visitor.setCustFullName(customer.getFirstName() + " " + customer.getLastName());
         visitor.setSpecFullName(specialist.getFirstName() + " " + specialist.getLastName());
         visitor.setVisitDuration(15);
         visitor.setSerial(visit.getSerial());
-        visitor.setIntVisitSatus(0);
+        visitor.setIntVisitStatus(0);
         return visitor;
+    }
+
+    public Visit visitFromVisitor(Visitor visitor) {
+        String[] split = visitor.getSpecIdCustId().split("-");
+        return new Visit(visitor.getVisitId(), Long.parseLong(split[0]), Long.parseLong(split[1]), visitor.getVisitTime(), 15, visitor.getSerial());
     }
 
 }

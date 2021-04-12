@@ -23,3 +23,50 @@
 // performAction = () =>{
 //     satrt();
 // }
+
+const myform = document.getElementById("cForm");
+const email = document.getElementById("username");
+const fname = document.getElementById("fname");
+const lname = document.getElementById("lname");
+const regInput = document.getElementById("regButton");
+
+function sendHttpRequest(method, url, data) {
+  return fetch(url, {
+    method: method,
+    body: JSON.stringify(data),
+  }).then((response) => {
+    return response.json();
+  });
+}
+
+let addC = () => {
+if(fname !== undefined && fname !== null){  
+    let em = email.value;
+    let fn = fname.value;
+    let ln = lname.value;
+  console.log(em);
+  const resp = sendHttpRequest(
+    "GET",
+    "http://localhost:8080/customer/add?email=" +
+      em +
+      "&fname=" +
+      fn +
+      "&lname=" +
+      ln
+  );
+
+  if (em) {
+    resp.then((val) => {
+      console.log("Val: " + val);
+      setTimeout(function () {
+        myform.submit();
+      }, 2000);
+    });
+  }}
+};
+
+if(fname !== undefined && fname !== null){
+    regInput.addEventListener('click', function(event){
+        addC();
+    });
+}

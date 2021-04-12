@@ -4,7 +4,7 @@
     <meta charset="UTF-8"/>
     <title>Specialist enter</title>
     <link href="/css/style.css" rel="stylesheet"/>
-    <script src="/scripts/spec-login.js" defer></script>
+    <script src="/scripts/app.js" defer></script>
 </head>
 <body class="parent">
 <div class="card" style="background: rgb(210, 212, 212)">
@@ -12,7 +12,6 @@
         Please enter your credentials
     </div>
     <form
-            id="cForm"
             action="/specialist/login"
             method="POST"
     >
@@ -34,20 +33,8 @@
                     aria-placeholder=" "
             />
         </div>
-        <div th:if="${customerlog}" class="card-in">
-            <div class="my-cell">
-                <span class="my-cell">Your first name</span>
-            </div>
-            <input class="my-input" id="fname" type="text" />
-        </div>
-        <div th:if="${customerlog}" class="card-in">
-            <div class="my-cell">
-                <span class="my-cell">Your last name</span>
-            </div>
-            <input class="my-input" id="lname" type="text" />
-        </div>
         <div class="card-in">
-            <div th:if="${customerlog}==null" class="my-cell">
+            <div class="my-cell">
             <span class="my-cell"
             >Password</span
             >
@@ -57,17 +44,15 @@
                     id="password"
                     name="password"
                     pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,}"
-                    th:value="${customerlog}?'Cust123'"
                     aria-placeholder=" "
-                    th:type="${customerlog}?'hidden':'password'"
+                    type="password"
             />
         </div>
-        <p th:if="${customerlog}==null">Password should contain capital, lower letters and numbers</p>
-        <div  class="card-foot">
-            <button th:if="${customerlog}==null" class="my-button" href="#" th:href="@{/specialist/register}"
+        <div class="card-foot">
+            <button class="my-button" href="#" th:href="@{/specialist/register}"
             >Register</button
             >
-            <button id="regButton" class="my-button" th:type="${customerlog}?'button':'submit'">Enter</button>
+            <button class="my-button" type="submit">Enter</button>
         </div>
     </form>
 </div>

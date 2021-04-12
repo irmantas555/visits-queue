@@ -18,10 +18,13 @@ public class Customer extends User {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
 
-
     public Customer(String email, String first_name, String last_name, String password) {
-       super(email,first_name, last_name, password);
+        super(email, first_name, last_name, password);
     }
 
-
+    @Override
+    public String toString() {
+        return " Customer id=  " + id +
+                super.toString();
+    }
 }

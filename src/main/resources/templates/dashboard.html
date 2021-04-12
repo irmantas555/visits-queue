@@ -15,14 +15,28 @@
     <li></li>
   </template>
   <body>
+    <form
+      class="invissible"
+      th:action="@{/specialist/logout}"
+      id="logout-form"
+      method="post"
+    >
+      <input
+        type="hidden"
+        th:name="${_csrf.parameterName}"
+        th:value="${_csrf.token}"
+      />
+    </form>
     <div class="parent-h">
       <div class="nav-cont">
         <div class="topnav">
-          <a href="#home" th:href="@{/customer/register}">Home</a>
-          <a class="active" href="#" th:href="@{/dashboard/det(cid=${customer.id},s=${mysession})}">Visists</a>
-          <a  href="#"  th:href="@{/customer/myvisits/det(cid=${customer.id},s=${mysession})}">My visits</a>
-          <a href="#"  th:href="@{/customer/book/det(cid=${customer.id},s=${mysession})}">Book visit</a>
-          <a class="ml-auto" href="#" th:href="@{/}">Logaut</a>
+          <a class="active" href="#" th:href="@{/dashboard/det}">Visists</a>
+          <a href="#" th:href="@{/customer/myvisits}">My visits</a>
+          <a href="#" th:href="@{/customer/book/det}">Book visit</a>
+          <div class=""></div>
+          <button class="ml-auto" type="submit" form="logout-form">
+            Logaut
+          </button>
         </div>
       </div>
       <div class="grid-2">

@@ -1,52 +1,72 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8"/>
+  <head>
+    <meta charset="UTF-8" />
     <title>Visits booking page</title>
-    <link href="/css/style.css" rel="stylesheet"/>
-    <link rel="preconnect" href="https://fonts.gstatic.com"/>
+    <link href="/css/style.css" rel="stylesheet" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" />
     <link
-            href="https://fonts.googleapis.com/css2?family=Nunito+Sans&display=swap"
-            rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Nunito+Sans&display=swap"
+      rel="stylesheet"
     />
     <script src="/scripts/dashboard.js" defer></script>
-</head>
-<template>
+  </head>
+  <template>
     <li></li>
-</template>
-<body class="">
+  </template>
+  <body class="">
+    <form
+      class="invissible"
+      th:action="@{/specialist/logout}"
+      id="logout-form"
+      method="post"
+    >
+      <input
+        type="hidden"
+        th:name="${_csrf.parameterName}"
+        th:value="${_csrf.token}"
+      />
+    </form>
     <div class="parent-h">
-        <div class="nav-cont">
-            <div class="topnav">
-                <a href="#home" th:href="@{/customer/register}">Home</a>
-                <a href="#" th:href="@{/dashboard/det(cid=${customer.id},s=${mysession})}">Visists</a>
-                <a  href="#"  th:href="@{/customer/myvisits/det(cid=${customer.id},s=${mysession})}">My visits</a>
-                <a class="active" href="#"  th:href="@{/customer/book/det(cid=${customer.id},s=${mysession})}">Book visit</a>
-                <a class="ml-auto" href="#" th:href="@{/}">Logaut</a>
-            </div>
+      <div class="nav-cont">
+        <div class="topnav">
+          <a href="#" th:href="@{/dashboard/det}">Visists</a>
+          <a href="#" th:href="@{/customer/myvisits}">My visits</a>
+          <a class="active" href="#" th:href="@{/customer/book/det}"
+            >Book visit</a
+          >
+          <div class=""></div>
+          <button class="ml-auto" type="submit" form="logout-form">
+            Logaut
+          </button>
         </div>
-        <div class="my-card">
+      </div>
+      <div class="my-card">
         <div class="">
-            <div class="card-head">Specialist name</div>
-            <div class="card-li">
-                <strong class="my-cell">Available specialist</strong>
-                <div class=""></div>
+          <div class="card-head">Specialist name</div>
+          <div class="card-li">
+            <strong class="my-cell">Available specialist</strong>
+            <div class=""></div>
+          </div>
+          <ul id="">
+            <li class="card-li" th:each="spec : ${specialists}">
+              <div class="my-cell">
+                <strong
+                  class="my-cell"
+                  th:text="${spec.firstName} + ' ' +  ${spec.lastName}"
+                  >The best available</strong
+                >
               </div>
-            <ul id="">
-                <li class="card-li" th:each="spec : ${specialists}">
-                    <div class="my-cell">
-                        <strong
-                                class="my-cell"
-                                th:text="${spec.firstName} + ' ' +  ${spec.lastName}"
-                        >The best available</strong
-                        >
-                    </div>
-                    <a class="my-button" href="#"
-                       th:href="@{/specialist/specassign/details(specId=${spec.id}, cid=${customer.id}, s=${mysession})}">Register</a>
-                </li>
-            </ul>
+              <a
+                class="my-button"
+                href="#"
+                th:href="@{/specialist/specassign/details(specId=${spec.id})}"
+                >Register</a
+              >
+            </li>
+          </ul>
         </div>
+      </div>
     </div>
-</div>
-</body>
+  </body>
 </html>

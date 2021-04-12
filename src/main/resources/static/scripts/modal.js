@@ -6,6 +6,7 @@ const modalContent = addModal.querySelector(".modal__content");
 let stringContent = "";
 
 
+
 const toggleBackdrop = () => {
   backdrop.classList.toggle("visible");
 };

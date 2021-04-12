@@ -9,11 +9,6 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.time.Duration;
-import java.time.Instant;
-import java.util.TreeMap;
-import java.util.TreeSet;
-
 @Service
 public class CustomerService {
     @Autowired
@@ -23,52 +18,42 @@ public class CustomerService {
     UtilService utilService;
 
     @Autowired
-    MySession mySession;
-
-    @Autowired
     VisitsRepo visitsRepo;
 
     @Autowired
     SpecialistsRepo specialistsRepo;
 
-
-    public Flux<MyVisit> getMyVisits(Long id) {
-        return Flux.fromIterable(mySession.getVisitMap().entrySet())
-                .flatMap(visistsEntry -> {
-                   return Flux.fromIterable(visistsEntry.getValue())
-                            .filter(visitor -> visitor.getSpecIdCustId().split("-")[1].equals(id.toString()))
-                            .map(visitor -> utilService.getVisitFromVisitor(visitor));
-                });
+    public Mono<?> findByEmail(String email) {
+        return customersRepo.findByEmail(email);
     }
 
-    public void assignNew(Long specId, Long customerId) {
-//        System.out.println("Spec: " + specId + "Customer: " + customerId);
-        Long lastentry;
-        if (mySession.existSpecialistAndHisVisits(specId)) {
-            lastentry = mySession.getLAstTimeForSpecialist(specId);
-        } else {
-            lastentry = System.currentTimeMillis();
-        }
-        long nextTime = utilService.nextTime(lastentry);
-        String serial = utilService.getSerial(nextTime);
-        Visit newVisit = new Visit(specId, customerId, nextTime, 15, serial);
-        visitsRepo.save(newVisit)
-                .zipWith(specialistsRepo.findById(specId))
-                .zipWith(customersRepo.findById(customerId))
-                .map(visitspec -> utilService.fromVisit(visitspec.getT1().getT1(), visitspec.getT1().getT2(), visitspec.getT2()))
-                .map(visitor -> {
-                    TreeSet set = mySession.getVisitMap().get(specId);
-                    if (null != set) {
-                        set.add(visitor);
-                    } else {
-                        TreeSet<Visitor> visitorSet =  new TreeSet<>(mySession.getiDComparator());
-                        visitorSet.add(visitor);
-                        mySession.getVisitMap().put(specId, visitorSet);
-                    }
-//                    System.out.println("New visitor: " + visitor);
+
+    public Flux<MyVisit> getMyVisits(Long id) {
+        return Flux.fromIterable(InMemoryService.getVisistorsSet())
+                .filter(visitor -> Long.parseLong(visitor.getSpecIdCustId().split("-")[1]) == id)
+                .map(visitor -> utilService.getVisitFromVisitor(visitor));
+    }
+
+    public Mono<Void> assignNew(Long specId, Long customerId) {
+        Customer customer = InMemoryService.getCustById(customerId);
+        Specialist specialist = InMemoryService.getSpecById(specId);
+        return InMemoryService.getLastTimeForSpecialist(specId)
+                .map(aLong -> makeVisit(aLong, specId, customerId))
+                .flatMap(newVisit -> visitsRepo.save(newVisit))
+                .map(visitspec -> makeVisitor(visitspec, specialist, customer))
+                .then();
+    }
+
+    Visit makeVisit(Long visitLastTime, Long specId, Long custId) {
+        Long next = utilService.nextTime(visitLastTime);
+        String serial = utilService.getSerial(next);
+        return new Visit(specId, custId, next, 15, serial);
+    }
+
+    Visitor makeVisitor(Visit visit, Specialist specialist, Customer customer) {
+        Visitor visitor = utilService.visitorFromVisit(visit, specialist, customer);
+        InMemoryService.addVisitorToSet(visitor);
                     return visitor;
-                })
-                .subscribe();
     }
 
 }

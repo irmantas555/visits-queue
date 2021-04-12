@@ -2,6 +2,7 @@ package lt.irmantasm.nfqtask.service;
 
 import lt.irmantasm.nfqtask.model.MyVisit;
 import lt.irmantasm.nfqtask.model.User;
+import lt.irmantasm.nfqtask.model.Visitor;
 import lt.irmantasm.nfqtask.repositories.SpecialistsRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,16 +18,12 @@ public class SpecialistService {
     @Autowired
     UtilService utilService;
 
-    @Autowired
-    MySession mySession;
+    public Mono<?> findByEmail(String email) {
+        return specialistsRepo.findByEmail(email);
+    }
 
     public Flux<MyVisit> getMyVisits(Long id) {
-        if (mySession.getVisitMap().containsKey(id)) {
-            return Flux.fromIterable(mySession.getVisitMap().get(id))
-                    .map(visitor -> utilService.getVisitFromVisitor(visitor));
-        } else {
-            return Flux.empty();
-        }
+        return InMemoryService.getVisitorsForSpecialist(id).map(visitor -> utilService.getVisitFromVisitor(visitor)).switchIfEmpty(Mono.just(new MyVisit()));
     }
 
     public Mono<? extends User> findByEmailUser(String email){

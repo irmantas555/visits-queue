@@ -1,16 +1,12 @@
 package lt.irmantasm.nfqtask.controllers;
 
-import javassist.tools.web.Webserver;
 import lt.irmantasm.nfqtask.model.Customer;
 import lt.irmantasm.nfqtask.model.MyVisit;
 import lt.irmantasm.nfqtask.model.Specialist;
 import lt.irmantasm.nfqtask.repositories.CustomersRepo;
 import lt.irmantasm.nfqtask.repositories.SpecialistsRepo;
 import lt.irmantasm.nfqtask.service.CustomerService;
-import lt.irmantasm.nfqtask.service.MySession;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.server.reactive.ServerHttpResponse;
-import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.WebSession;
@@ -18,9 +14,9 @@ import org.thymeleaf.spring5.context.webflux.ReactiveDataDriverContextVariable;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.Map;
 
-@Controller
-@RequestMapping(value = "/customer")
+
 public class CustomerController {
 
 
@@ -33,42 +29,49 @@ public class CustomerController {
     @Autowired
     SpecialistsRepo specialistsRepo;
 
-    @Autowired
-    MySession mySessionUtils;
 
 
-
-
-    @GetMapping(value = "/register")
-    public String getRegissterForm(final Model model) {
-        model.addAttribute(new Customer());
-        return "customer_register";
+    @GetMapping(value = "/customer/register")
+    public Mono<String> getRegissterForm(final Model model) {
+        model.addAttribute("customerlog", true);
+        return Mono.just("specialist_login");
     }
 
-    @PostMapping(value = "/register")
-    public Mono<String> customerRegister(@ModelAttribute("customer") Customer customer,  ServerHttpResponse response) {
-        return customersRepo.findByEmail(customer.getEmail())
-                .switchIfEmpty(customersRepo.save(new Customer(customer.getEmail(), customer.getFirstName(), customer.getLastName(), "customer")))
-                .map(customer1 -> {
-                    return customer1;
-                })
-                .map(customer1 -> "redirect:/customer/myvisits/det?cid=" + customer1.getId() + "&s=" + MySession.getSession());
+
+    @GetMapping(value = "/customer/final")
+    public Mono<String> addSessionAtrributeCust(Customer customer, WebSession session,final Model model) {
+        Map<String, Object> attributes = session.getAttributes();
+        attributes.entrySet().forEach(v -> System.out.println(v));
+        return Mono.just("redirect:/customer/myvisits");
     }
 
-    @GetMapping(value = "/book/det")
-    public Mono<String> getCustomerVisits(final Model model,@RequestParam String s ,@RequestParam Long cid) {
-        if (s.equals(MySession.getSession())) {
+    @GetMapping(value = "/customer/redirect")
+    public Mono<String> getCustomer(@RequestParam String pname, final Model model){
+        return customersRepo.findByEmail(pname)
+                .switchIfEmpty(Mono.just(new Customer()))
+                .map(customer -> {
+                    if (0 != customer.getId()){
+                        model.addAttribute("customer", customer);
+                        System.out.println("CUSTOMER" + customer);
+                        return "redirect:/customer/final";
+                    } else {
+                        return "redirect:/";
+                    }
+                });
+    }
+
+    @GetMapping(value = "/customer/book/det")
+    public Mono<String> getCustomerVisits(final Model model, WebSession session) {
+            Customer customer = session.getAttribute("customer");
             Flux<Specialist> specialists = specialistsRepo.findAll();
-            model.addAttribute("mysession", mySessionUtils.getSession());
             model.addAttribute("specialists",new ReactiveDataDriverContextVariable(specialists, 50));
             return Mono.just("vitsits_booking");
-        } else {
-            return Mono.just("redirect:/");
-        }
+
     }
 
-    @GetMapping(value = "/myvisits/det")
+    @GetMapping(value = "/customer/myvisits")
     public Mono<String> getCustomerBookedVisits(WebSession session, final Model model) {
+        System.out.println("Customer attribute: " + session.getAttribute("customer").toString());
         Customer customer = session.getAttribute("customer");
             Flux<MyVisit> myvisits = customerService.getMyVisits(customer.getId());
             model.addAttribute("customer", customer);

@@ -8,7 +8,7 @@ es.onmessage = function(e){
     const newUlItemL = document.createElement('ul');
     newUlItemL.className = 'left';
     const newUlItemR = document.createElement('ul');
-    newUlItemL.className = 'right';
+    newUlItemR.className = 'right';
     newpList.forEach(element => {
         const newListItem = document.createElement('li');
         newListItem.className = 'card-li';
@@ -35,3 +35,7 @@ es.onmessage = function(e){
     });
 
 }
+
+window.onbeforeunload = function(){
+    es.close();
+};
