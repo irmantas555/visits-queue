@@ -35,7 +35,8 @@ public class EventsController {
     @GetMapping(value = "/visits/sse")
     public Flux<List<MyVisit>> visitsStream() {
         return service.replaySink.asFlux().mergeWith(service.replaySinkCurrent.asFlux())
-                .buffer(Duration.ofSeconds(1));
+                .buffer(Duration.ofSeconds(1))
+                ;
     }
 
     @GetMapping(value = "/visit/delete/{id}")

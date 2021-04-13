@@ -1,5 +1,5 @@
 const onlist = document.getElementById('split-list');
-const es = new EventSource('http://localhost:8080/visits/sse');
+const es = new EventSource('http://78.63.114.206/visits/sse');
 const template = document.getElementById('li-temp');
 
 es.onmessage = function(e){

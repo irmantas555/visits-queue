@@ -54,7 +54,6 @@ public class InMemoryService {
         Flux.interval(Duration.ofSeconds(5))
                 .flatMap(aLong -> Flux.fromIterable(visistorsSet))
                 .filter(visitor -> visitor.getIntVisitStatus() == 1)
-                .doOnNext(System.out::println)
                 .map(visitor -> utilService.getVisitFromVisitor(visitor))
                 .map(visit -> {
                     service.emitMyNextCurrent(visit);
@@ -117,7 +116,6 @@ public class InMemoryService {
                     visitor.setIntVisitStatus(status);
                     return "Ok";
                 })
-                .doOnNext(System.out::println)
                 .then();
     }
 
@@ -134,7 +132,7 @@ public class InMemoryService {
 
     public static Mono<Void> printVisitors() {
         Flux.fromIterable(visistorsSet)
-                .subscribe(v -> System.out.println(v));
+                .subscribe();
         return Mono.empty();
     }
 
@@ -145,7 +143,6 @@ public class InMemoryService {
                .sort(vistorTimeComparator)
                .map(visitor -> visitor.getVisitTime())
                .take(1)
-               .doOnNext(along -> System.out.println("LAST TIME" + along))
                .delayElements(Duration.ofMillis(300))
                .switchIfEmpty(Mono.just(System.currentTimeMillis())).single();
 

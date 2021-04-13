@@ -3,7 +3,6 @@ package lt.irmantasm.nfqtask.config;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.authentication.UserDetailsRepositoryReactiveAuthenticationManager;
@@ -12,11 +11,15 @@ import org.springframework.security.config.annotation.web.reactive.EnableWebFlux
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.web.access.AccessDeniedHandlerImpl;
+import org.springframework.security.web.csrf.CsrfLogoutHandler;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.authentication.RedirectServerAuthenticationFailureHandler;
 import org.springframework.security.web.server.authentication.RedirectServerAuthenticationSuccessHandler;
 import org.springframework.security.web.server.authentication.logout.RedirectServerLogoutSuccessHandler;
+import org.springframework.security.web.server.authentication.logout.ServerLogoutHandler;
 import org.springframework.security.web.server.csrf.CookieServerCsrfTokenRepository;
+import org.springframework.web.server.WebSession;
 
 
 import java.net.URI;
@@ -40,8 +43,7 @@ public class SecurityConfig {
     @Bean
     public SecurityWebFilterChain securityWebFilterChaintwo(ServerHttpSecurity http) {
         http
-                .csrf()
-                .and()
+                .csrf(csrf -> csrf.csrfTokenRepository(CookieServerCsrfTokenRepository.withHttpOnlyFalse()))
                 .authorizeExchange(exchange -> exchange
                         .pathMatchers("/").permitAll()
                         .pathMatchers(HttpMethod.GET, "/css/**").permitAll()
@@ -49,24 +51,24 @@ public class SecurityConfig {
                         .pathMatchers(HttpMethod.GET, "/images/**").permitAll()
                         .pathMatchers(HttpMethod.GET, "/favicon.ico").permitAll()
                         .pathMatchers("/specialist/register").permitAll()
-                        .pathMatchers("/specialist/login").permitAll()
+                        .pathMatchers(HttpMethod.GET,"/specialist/login").permitAll()
+                        .pathMatchers(HttpMethod.POST,"/specialist/login").permitAll()
                         .pathMatchers("/specialist/failure").permitAll()
-                        .pathMatchers("/specialist/success").permitAll()
                         .pathMatchers("/customer/register").permitAll()
-                        .pathMatchers("/customer/success").permitAll()
-                        .pathMatchers("/customer/failure").permitAll()
                         .pathMatchers("/customer/add").permitAll()
                         .pathMatchers("/visits/sse").permitAll()
                         .anyExchange().authenticated())
-                .httpBasic(Customizer.withDefaults())
                 .formLogin(formLoginSpec -> formLoginSpec.loginPage("/specialist/login")
                         .authenticationSuccessHandler(new RedirectServerAuthenticationSuccessHandler("/specialist/success"))
                         .authenticationFailureHandler(new RedirectServerAuthenticationFailureHandler("/specialist/failure")))
-                .logout(logoutSpec -> logoutSpec
+                .logout(
+                        logoutSpec -> logoutSpec
                         .logoutUrl("/specialist/logout")
-                        .logoutSuccessHandler(logoutSuccessHandlerTwo()));
+                        .logoutSuccessHandler(logoutSuccessHandlerTwo())
+                );
         return http.build();
     }
+
 
     @Bean
     RedirectServerLogoutSuccessHandler logoutSuccessHandlerTwo(){

@@ -38,8 +38,6 @@ public class DataSetup {
 
     @PostConstruct
     private void populateInMemoryVisitsMap() {
-        Mono.just("start")
-                .subscribe();
         customRepository.getVisitsValues();
     }
 
@@ -55,15 +53,12 @@ public class DataSetup {
 
     @PostConstruct
     public void makeCleanup() {
-
         Flux.interval(Duration.ofSeconds(60))
                 .map(aLong -> {
                     visitsCleanupOperations();
                     return aLong;
                 }).subscribe();
     }
-
-
 
     private void visitsCleanupOperations() {
         Long nowMinus15Min = System.currentTimeMillis() - 15 * 60 * 1000; //current time + visit time(constant 15 min)
@@ -72,12 +67,9 @@ public class DataSetup {
         while (iterator.hasNext()) {
             Visitor visitor = (Visitor) iterator.next();
             if (visitor.getVisitTime() < nowMinus15Min) {
-//                            System.out.println("Removing visistor with visit time: " + utilService.getVisitTime(visitor.getVisitTime()));
                 visitsRepo.deleteById(visitor.getVisitId()).subscribe();
                 iterator.remove();
             }
         }
-//        System.out.println("VisitorsSet after removql count " + set.stream().count());
-
     }
 }

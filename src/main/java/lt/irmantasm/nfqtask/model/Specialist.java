@@ -25,4 +25,10 @@ public class Specialist extends User {
     public Specialist(String email, String password) {
         super(email, password);
     }
+
+    @Override
+    public String toString() {
+        return " Specialist id=  " + id + "," +
+                super.toString();
+    }
 }

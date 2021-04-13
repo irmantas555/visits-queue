@@ -16,11 +16,11 @@
             action="/specialist/login"
             method="POST"
     >
-        <div th:if="${failure}" class="error" >There was an error in input values</div>
         <input
                 type="hidden"
                 th:name="${_csrf.parameterName}"
                 th:value="${_csrf.token}"/>
+        <div th:if="${failure}" class="error" >There was an error in input values</div>
         <div class="card-in">
             <div class="my-cell">
                 <span class="my-cell">Your email</span>
@@ -46,8 +46,8 @@
             </div>
             <input class="my-input" id="lname" type="text" />
         </div>
-        <div class="card-in">
-            <div th:if="${customerlog}==null" class="my-cell">
+        <div  class="card-in">
+            <div th:if="${customerlog}==false" class="my-cell">
             <span class="my-cell"
             >Password</span
             >
@@ -62,11 +62,9 @@
                     th:type="${customerlog}?'hidden':'password'"
             />
         </div>
-        <p th:if="${customerlog}==null">Password should contain capital, lower letters and numbers</p>
+        <p th:if="${customerlog}==fasle">Password should contain capital, lower letters and numbers</p>
         <div  class="card-foot">
-            <button th:if="${customerlog}==null" class="my-button" href="#" th:href="@{/specialist/register}"
-            >Register</button
-            >
+            <a id="swithButton" th:if="${customerlog}==false" class="my-button" href="#" th:href="@{/specialist/register}">Register</a>
             <button id="regButton" class="my-button" th:type="${customerlog}?'button':'submit'">Enter</button>
         </div>
     </form>

@@ -17,6 +17,10 @@
         th:acttion="@{/specialist/register}"
         th:object="${specialist}"
       >
+        <input
+                type="hidden"
+                th:name="${_csrf.parameterName}"
+                th:value="${_csrf.token}"/>
         <div class="card-in">
           <div class="my-cell">
             <span class="input-group-text text-secondary">Your email</span>

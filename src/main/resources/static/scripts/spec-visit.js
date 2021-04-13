@@ -1,6 +1,4 @@
 const specVisitsList = document.getElementById("ulist");
-const logout = document.getElementById("logout");
-console.log(logout)
 const specId = specVisitsList.getAttribute("data-spec");
 function sendHttpRequest(method, url, data) {
   return fetch(url, {
@@ -45,14 +43,14 @@ const cancelEvent = (resButton) => {
   if (rez) {
     switch (value) {
       case "Cancel": {
-        sendHttpRequest("GET", "http://localhost:8080/visit/delete/" + id).then(r => {});
+        sendHttpRequest("GET", "http://78.63.114.206/visit/delete/" + id).then(r => {});
         listItem.remove();
         break;
       }
       case "Started": {
         sendHttpRequest(
           "GET",
-          "http://localhost:8080/visit/started/details?" +
+          "http://78.63.114.206/visit/started/details?" +
             "visitId=" +
             id +
             "&specialistId=" +
@@ -63,7 +61,7 @@ const cancelEvent = (resButton) => {
       case "Finished": {
         sendHttpRequest(
           "GET",
-          "http://localhost:8080/visit/finished/details?" +
+          "http://78.63.114.206/visit/finished/details?" +
             "visitId=" +
             id +
             "&specialistId=" +
@@ -82,8 +80,3 @@ function deleteListEntry(id) {
 
 specVisitsList.addEventListener("click", cancelEvent);
 
-const handleLogout = () => {
-  sendHttpRequest("GET", "http://localhost:8080/visits");
-}
-
-logout.addEventListener("click", handleLogout);

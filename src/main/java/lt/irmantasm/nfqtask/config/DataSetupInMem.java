@@ -96,7 +96,7 @@ public class DataSetupInMem {
                 .reduce(new HashMap<Integer, TreeMap<Long, Integer>>(), (hashmap, tuple) -> {
                     if (null == hashmap || null == hashmap.get(tuple.getT2())) {
                         TreeMap specAppointmentsMap = new TreeMap();
-                        specAppointmentsMap.put((now + (random.nextInt(60) + 15) * 60 * 1000), tuple.getT1());
+                        specAppointmentsMap.put((now + (random.nextInt(20160) + 15) * 60 * 1000), tuple.getT1());
                         hashmap.put(tuple.getT2(), specAppointmentsMap);
                     } else {
                         TreeMap specAppointmentsMap = hashmap.get(tuple.getT2());

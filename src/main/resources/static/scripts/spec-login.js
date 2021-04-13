@@ -12,7 +12,7 @@
 
 // formBody = formBody.join("&");
 
-// const satrt = fetch('http://localhost:8080/spacialist/login', {
+// const satrt = fetch('http://78.63.114.206/spacialist/login', {
 //   method: 'POST',
 //   headers: {
 //     'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
@@ -47,7 +47,7 @@ if(fname !== undefined && fname !== null){
   console.log(em);
   const resp = sendHttpRequest(
     "GET",
-    "http://localhost:8080/customer/add?email=" +
+    "http://78.63.114.206/customer/add?email=" +
       em +
       "&fname=" +
       fn +

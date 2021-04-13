@@ -24,7 +24,7 @@ public class Customer extends User {
 
     @Override
     public String toString() {
-        return " Customer id=  " + id +
+        return " Customer id=  " + id + "," +
                 super.toString();
     }
 }

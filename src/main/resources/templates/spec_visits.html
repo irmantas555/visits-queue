@@ -49,6 +49,7 @@
           <li
             id=""
             th:id="list + |${visit.visitId}|"
+            th:if="${visit.custFullName} != ''"
             class="card-vi"
             th:each="visit : ${visits}"
           >

@@ -28,7 +28,7 @@ public class SpecialistService {
 
     public Mono<? extends User> findByEmailUser(String email){
         return specialistsRepo.findByEmail(email).cast(User.class)
-                .doOnNext(user -> System.out.println("Found such specialist" + user));
+                ;
     };
 
 }

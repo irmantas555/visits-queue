@@ -35,7 +35,7 @@ public class MariaConfig extends AbstractR2dbcConfiguration {
                     .build());
         }
         catch (IOException e) {
-            System.out.println(e.getMessage());
+//            System.out.println(e.getMessage());
             return null;
         }
     }
