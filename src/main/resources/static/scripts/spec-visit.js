@@ -43,14 +43,14 @@ const cancelEvent = (resButton) => {
   if (rez) {
     switch (value) {
       case "Cancel": {
-        sendHttpRequest("GET", "http://78.63.114.206/visit/delete/" + id).then(r => {});
+        sendHttpRequest("GET", "http://localhost:8080/visit/delete/" + id).then(r => {});
         listItem.remove();
         break;
       }
       case "Started": {
         sendHttpRequest(
           "GET",
-          "http://78.63.114.206/visit/started/details?" +
+          "http://localhost:8080/visit/started/details?" +
             "visitId=" +
             id +
             "&specialistId=" +
@@ -61,7 +61,7 @@ const cancelEvent = (resButton) => {
       case "Finished": {
         sendHttpRequest(
           "GET",
-          "http://78.63.114.206/visit/finished/details?" +
+          "http://localhost:8080/visit/finished/details?" +
             "visitId=" +
             id +
             "&specialistId=" +

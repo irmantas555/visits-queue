@@ -10,7 +10,7 @@ function sendHttpRequest(method, url, data) {
 function cancelEvent(eventId) {
   const resp = sendHttpRequest(
     "GET",
-    "http://78.63.114.206/visit/delete/" + eventId
+    "http://localhost:8080/visit/delete/" + eventId
   );
   resp.then((value) => {
     if (value.status == "Success") {
